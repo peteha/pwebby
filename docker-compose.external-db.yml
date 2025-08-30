@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # Image Gallery Application
+  app:
+    build: .
+    container_name: image-gallery-app
+    ports:
+      - "5002:5002"
+    environment:
+      # Flask Configuration
+      - SECRET_KEY=${SECRET_KEY:-change-this-to-a-random-secret-key}
+      - FLASK_DEBUG=${FLASK_DEBUG:-false}
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5002
+      
+      # Database Configuration (External PostgreSQL)
+      - DATABASE_TYPE=${DATABASE_TYPE:-postgresql}
+      
+      # External PostgreSQL Configuration
+      - POSTGRES_HOST=${POSTGRES_HOST:-host.docker.internal}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE:-imagedb}
+      - POSTGRES_USER=${POSTGRES_USER:-gallery_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-gallery_password}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_SSLMODE=${POSTGRES_SSLMODE:-prefer}
+      - POSTGRES_CONNECT_TIMEOUT=${POSTGRES_CONNECT_TIMEOUT:-10}
+      
+      # Application Settings
+      - MAX_UPLOAD_SIZE=${MAX_UPLOAD_SIZE:-16777216}
+      - ALLOWED_EXTENSIONS=${ALLOWED_EXTENSIONS:-jpg,jpeg,png,gif}
+      - DEFAULT_PAGINATION=${DEFAULT_PAGINATION:-8}
+      - MAX_IMAGES=${MAX_IMAGES:-100}
+      
+      # LAION Dataset Configuration
+      - LAION_CSV_FILE=laion_sample.csv
+      - MAX_WORKERS=${MAX_WORKERS:-8}
+      - DOWNLOAD_TIMEOUT=${DOWNLOAD_TIMEOUT:-15}
+    volumes:
+      - uploads:/app/static/uploads
+      - ./laion_sample.csv:/app/laion_sample.csv:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5002/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    extra_hosts:
+      # Allow connection to host PostgreSQL
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  uploads:
+    driver: local
+
+networks:
+  default:
+    name: image-gallery-network

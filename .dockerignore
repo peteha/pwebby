@@ -1,0 +1,91 @@
+# Docker ignore file for Image Gallery
+# Ignore Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# Environment files (will be mounted or configured separately)
+.env
+.env.local
+.env.production
+
+# Database files (should be in volumes)
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# Test files
+test_*
+*_test.py
+tests/
+
+# Logs
+*.log
+logs/
+
+# Docker files (to avoid recursion)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Deployment scripts (not needed in container)
+setup_host.sh
+prepare_host.py
+start.sh
+start-dev.sh
+*.service
+
+# Upload directories (will be mounted as volumes)
+static/uploads/
+uploads/
+
+# Backup files
+*.bak
+*.backup

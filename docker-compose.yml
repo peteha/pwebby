@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # Image Gallery Application
+  app:
+    build: .
+    container_name: image-gallery-app
+    ports:
+      - "5002:5002"
+    environment:
+      # Flask Configuration
+      - SECRET_KEY=${SECRET_KEY:-change-this-to-a-random-secret-key}
+      - FLASK_DEBUG=${FLASK_DEBUG:-false}
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5002
+      
+      # Database Configuration
+      - DATABASE_TYPE=${DATABASE_TYPE:-postgresql}
+      
+      # PostgreSQL Configuration (Internal)
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE:-imagedb}
+      - POSTGRES_USER=${POSTGRES_USER:-gallery_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-gallery_password}
+      - POSTGRES_PORT=5432
+      - POSTGRES_SSLMODE=prefer
+      - POSTGRES_CONNECT_TIMEOUT=10
+      
+      # Application Settings
+      - MAX_UPLOAD_SIZE=${MAX_UPLOAD_SIZE:-16777216}
+      - ALLOWED_EXTENSIONS=${ALLOWED_EXTENSIONS:-jpg,jpeg,png,gif}
+      - DEFAULT_PAGINATION=${DEFAULT_PAGINATION:-8}
+      - MAX_IMAGES=${MAX_IMAGES:-100}
+      
+      # LAION Dataset Configuration
+      - LAION_CSV_FILE=laion_sample.csv
+      - MAX_WORKERS=${MAX_WORKERS:-8}
+      - DOWNLOAD_TIMEOUT=${DOWNLOAD_TIMEOUT:-15}
+    volumes:
+      - uploads:/app/static/uploads
+      - ./laion_sample.csv:/app/laion_sample.csv:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5002/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: image-gallery-postgres
+    environment:
+      - POSTGRES_DB=${POSTGRES_DATABASE:-imagedb}
+      - POSTGRES_USER=${POSTGRES_USER:-gallery_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-gallery_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql:ro
+    ports:
+      - "5433:5432"  # External access on different port to avoid conflicts
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gallery_user} -d ${POSTGRES_DATABASE:-imagedb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for session storage (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: image-gallery-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+  uploads:
+    driver: local
+
+networks:
+  default:
+    name: image-gallery-network
