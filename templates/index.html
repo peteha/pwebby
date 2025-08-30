@@ -1,0 +1,228 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Image Gallery{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom Monokai Theme CSS -->
+    <style>
+        :root {
+            --monokai-bg: #272822;
+            --monokai-dark: #1e1f1c;
+            --monokai-light: #3e3d32;
+            --monokai-text: #f8f8f2;
+            --monokai-comment: #75715e;
+            --monokai-yellow: #e6db74;
+            --monokai-orange: #fd971f;
+            --monokai-red: #f92672;
+            --monokai-purple: #ae81ff;
+            --monokai-blue: #66d9ef;
+            --monokai-green: #a6e22e;
+        }
+
+        body {
+            background-color: var(--monokai-bg);
+            color: var(--monokai-text);
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .navbar {
+            background-color: var(--monokai-dark) !important;
+            border-bottom: 2px solid var(--monokai-light);
+        }
+
+        .navbar-brand, .nav-link {
+            color: var(--monokai-text) !important;
+        }
+
+        .navbar-brand:hover, .nav-link:hover {
+            color: var(--monokai-green) !important;
+        }
+
+        .card {
+            background-color: var(--monokai-light);
+            border: 1px solid var(--monokai-comment);
+            color: var(--monokai-text);
+        }
+
+        .card-header {
+            background-color: var(--monokai-dark);
+            border-bottom: 1px solid var(--monokai-comment);
+            color: var(--monokai-yellow);
+        }
+
+        .btn-primary {
+            background-color: var(--monokai-blue);
+            border-color: var(--monokai-blue);
+            color: var(--monokai-dark);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--monokai-green);
+            border-color: var(--monokai-green);
+        }
+
+        .btn-danger {
+            background-color: var(--monokai-red);
+            border-color: var(--monokai-red);
+        }
+
+        .btn-danger:hover {
+            background-color: #c91e42;
+            border-color: #c91e42;
+        }
+
+        .btn-warning {
+            background-color: var(--monokai-orange);
+            border-color: var(--monokai-orange);
+            color: var(--monokai-dark);
+        }
+
+        .btn-success {
+            background-color: var(--monokai-green);
+            border-color: var(--monokai-green);
+            color: var(--monokai-dark);
+        }
+
+        .alert-success {
+            background-color: rgba(166, 226, 46, 0.2);
+            border-color: var(--monokai-green);
+            color: var(--monokai-green);
+        }
+
+        .alert-danger {
+            background-color: rgba(249, 38, 114, 0.2);
+            border-color: var(--monokai-red);
+            color: var(--monokai-red);
+        }
+
+        .form-control {
+            background-color: var(--monokai-light);
+            border: 1px solid var(--monokai-comment);
+            color: var(--monokai-text);
+        }
+
+        .form-control:focus {
+            background-color: var(--monokai-light);
+            border-color: var(--monokai-blue);
+            color: var(--monokai-text);
+            box-shadow: 0 0 0 0.2rem rgba(102, 217, 239, 0.25);
+        }
+
+        .form-label {
+            color: var(--monokai-yellow);
+        }
+
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .image-card {
+            background-color: var(--monokai-light);
+            border: 1px solid var(--monokai-comment);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .image-card:hover {
+            transform: scale(1.02);
+            border-color: var(--monokai-blue);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .image-info {
+            padding: 15px;
+        }
+
+        .image-filename {
+            color: var(--monokai-yellow);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .image-date {
+            color: var(--monokai-comment);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .container-fluid {
+            background-color: var(--monokai-bg);
+        }
+
+        .footer {
+            background-color: var(--monokai-dark);
+            color: var(--monokai-comment);
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 50px;
+            border-top: 1px solid var(--monokai-light);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">📸 Image Gallery</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('upload') }}">Upload</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mt-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Image Gallery - Built with Flask & Bootstrap</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

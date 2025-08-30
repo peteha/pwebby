@@ -1,0 +1,150 @@
+
+{% extends "base.html" %}
+
+{% block title %}Image Gallery - Upload{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">📤 Upload New Image</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Select Image File</label>
+                        <input type="file" class="form-control" id="file" name="file" 
+                               accept="image/jpeg,image/jpg,image/png,image/gif" required>
+                        <div class="form-text text-muted">
+                            Supported formats: JPEG, PNG, GIF (Max 100 images total)
+                        </div>
+                    </div>
+                    
+                    <!-- Image Preview -->
+                    <div id="imagePreview" class="mb-3" style="display: none;">
+                        <label class="form-label">Preview:</label>
+                        <div class="text-center">
+                            <img id="previewImg" src="" alt="Preview" 
+                                 style="max-width: 100%; max-height: 300px; border: 1px solid var(--monokai-comment); border-radius: 8px;">
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                            📤 Upload Image
+                        </button>
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                            ← Back to Gallery
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Upload Instructions -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">📋 Instructions</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">✅ Supported formats: JPEG, PNG, GIF</li>
+                    <li class="mb-2">📊 Maximum 100 images stored</li>
+                    <li class="mb-2">🔄 Oldest images are automatically deleted when limit is reached</li>
+                    <li class="mb-2">🖼️ Images are displayed on the main page (latest 5)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- API Usage -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">🔗 Command Line Upload</h5>
+            </div>
+            <div class="card-body">
+                <p>You can also upload images via API using curl:</p>
+                <code style="background-color: var(--monokai-dark); padding: 10px; display: block; border-radius: 4px; color: var(--monokai-green);">
+                    curl -X POST -F "file=@your_image.jpg" {{ request.url_root }}api/upload
+                </code>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('file');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    const uploadForm = document.getElementById('uploadForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Image preview functionality
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please select a valid image file (JPEG, PNG, or GIF)');
+                fileInput.value = '';
+                imagePreview.style.display = 'none';
+                return;
+            }
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            imagePreview.style.display = 'none';
+        }
+    });
+
+    // Form submission with loading state
+    uploadForm.addEventListener('submit', function(e) {
+        submitBtn.innerHTML = '⏳ Uploading...';
+        submitBtn.disabled = true;
+        
+        // Re-enable button after 10 seconds in case of issues
+        setTimeout(() => {
+            submitBtn.innerHTML = '📤 Upload Image';
+            submitBtn.disabled = false;
+        }, 10000);
+    });
+
+    // Drag and drop functionality
+    const dropZone = document.querySelector('.card-body');
+    
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropZone.style.backgroundColor = 'var(--monokai-dark)';
+        dropZone.style.border = '2px dashed var(--monokai-blue)';
+    });
+
+    dropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dropZone.style.backgroundColor = '';
+        dropZone.style.border = '';
+    });
+
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropZone.style.backgroundColor = '';
+        dropZone.style.border = '';
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            fileInput.dispatchEvent(new Event('change'));
+        }
+    });
+});
+</script>
+{% endblock %}

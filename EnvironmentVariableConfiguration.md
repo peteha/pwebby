@@ -1,0 +1,4 @@
+
+## 🔧 Configuration
+
+### Environment Variables (.env)
